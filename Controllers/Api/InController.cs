@@ -1,23 +1,20 @@
-using  Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
 [ApiController]
 [Route("api/in")]
 public class InController : Controller {
-    [HttpGet("listar-propiedades-agencia-agente")]
-    public IActionResult ListarPropoiedadesAgenciaAgente([FromQuery]string agencia, [FromQuery]List<string> agentes){  
-        MongoClient client = new  MongoClient(CadenasConexion.MONGO_DB);
+    [HttpGet("casa-o-terreno")]
+    public IActionResult PropiedadesCasaOTerreno() {
+        MongoClient client = new MongoClient(CadenasConexion.MONGO_DB);
         var db = client.GetDatabase("Inmuebles");
         var collection = db.GetCollection<Inmueble>("RentasVentas");
 
-        
+        // Filtro: Tipo es "Casa" o "Terreno"
+        var filtroTipo = Builders<Inmueble>.Filter.In(x => x.Tipo, new[] { "Casa", "Terreno" });
 
-        var filtroAgencia = Builders<Inmueble>.Filter.Eq(x => x.Agencia, agencia);
-        var filtroAgentes = Builders<Inmueble>.Filter.In(x => x.NombreAgente, agentes);
-        var filtroCompuesto = Builders<Inmueble>.Filter.And(filtroAgencia, filtroAgentes);
+        var resultado = collection.Find(filtroTipo).ToList();
 
-        var list = collection.Find(filtroCompuesto).ToList();
-
-        return Ok(list);
+        return Ok(resultado);
     }
 }

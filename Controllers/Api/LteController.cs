@@ -4,20 +4,18 @@ using MongoDB.Driver;
 [ApiController]
 [Route("api/Lte")]
 public class LteController : Controller {
-    [HttpGet("costo-metros")]
-    public IActionResult PropiedadesPorCostoYMetros() {
+    [HttpGet("cantidad-baños")]
+    public IActionResult PropiedadesConMaximoDosBanos() {
         MongoClient client = new MongoClient(CadenasConexion.MONGO_DB);
         var db = client.GetDatabase("Inmuebles");
         var collection = db.GetCollection<Inmueble>("RentasVentas");
 
-        // Filtros: Costo <= 33421 y MetrosConstruccion <= 322
-        var filtroCosto = Builders<Inmueble>.Filter.Lte(x => x.Costo, 33421);
-        var filtroMetros = Builders<Inmueble>.Filter.Lte(x => x.MetrosConstruccion, 322);
+        // Filtro: NumeroBanos <= 2
+        var filtroBanos = Builders<Inmueble>.Filter.Lte(x => x.Baños, 2);
 
-        var filtroCompuesto = Builders<Inmueble>.Filter.And(filtroCosto, filtroMetros);
-
-        var resultado = collection.Find(filtroCompuesto).ToList();
+        var resultado = collection.Find(filtroBanos).ToList();
 
         return Ok(resultado);
     }
 }
+

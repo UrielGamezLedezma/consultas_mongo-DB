@@ -2,34 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
 [ApiController]
-[Route("api/eq")]
-
+[Route("api/Eq")]
 public class EqController : Controller {
-    [HttpGet("listar_agencias")]
- public IActionResult ListarAgencia(string agencia, string? agente){
-   //listar los registros de la agencia Torres Realty
+    [HttpGet("costo")]
+    public IActionResult PropiedadesConCostoExacto() {
+        MongoClient client = new MongoClient(CadenasConexion.MONGO_DB);
+        var db = client.GetDatabase("Inmuebles");
+        var collection = db.GetCollection<Inmueble>("RentasVentas");
 
-   MongoClient client = new MongoClient(CadenasConexion.MONGO_DB);
-   var db = client.GetDatabase("Inmuebles");
-   var collection = db.GetCollection<Inmueble>("RentasVentas");
+        // Filtro: Costo == 1331777
+        var filtroCosto = Builders<Inmueble>.Filter.Eq(x => x.Costo, 1331777);
 
-   // Que la agencia sea Torres Realty
-   var filtroAgencia = Builders<Inmueble>.Filter.Eq(x => x.Agencia, agencia);
+        var resultado = collection.Find(filtroCosto).ToList();
 
-   if (!string.IsNullOrWhiteSpace(agente)){
-      var filtroAgente = Builders<Inmueble>.Filter.Eq(x => x.NombreAgente, agente);
-      var filtroCompuesto = Builders<Inmueble>.Filter.And(filtroAgencia, filtroAgente);
-
-      var lista = collection.Find(filtroCompuesto).ToList();
-    return Ok(lista);
- 
-   }
-   else {
-      var lista = collection.Find(filtroAgencia).ToList();
-    return Ok(lista);
-
-   }
-
- 
- }
+        return Ok(resultado);
+    }
 }

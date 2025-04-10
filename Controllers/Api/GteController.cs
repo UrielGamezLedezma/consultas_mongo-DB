@@ -2,22 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
 [ApiController]
-[Route("api/gte")]
+[Route("api/Gte")]
 public class GteController : Controller {
-    [HttpGet("casas-venta-metros-terreno")]
-    public IActionResult CosasEnVentaConMasDexTerreno(int metrosConstruccion) {
+    [HttpGet("casa-o-terreno")]
+    public IActionResult PropiedadesCasaOTerreno() {
         MongoClient client = new MongoClient(CadenasConexion.MONGO_DB);
         var db = client.GetDatabase("Inmuebles");
         var collection = db.GetCollection<Inmueble>("RentasVentas");
 
-        var filtroCasas = Builders<Inmueble>.Filter.Eq(x => x.Tipo, "Casa");
-        var filtroVenta = Builders<Inmueble>.Filter.Eq(x => x.Operacion, "Venta");
-        var filtroMetros = Builders<Inmueble>.Filter.Gte(x => x.MetrosConstruccion, metrosConstruccion);
+        // Filtro: Tipo es "Casa" o "Terreno"
+        var filtroTipo = Builders<Inmueble>.Filter.In(x => x.Tipo, new[] { "Casa", "Terreno" });
 
-        var filtroCompuesto = Builders<Inmueble>.Filter.And(filtroCasas, filtroVenta, filtroMetros);
-        var list = collection.Find(filtroCompuesto).ToList();
+        var resultado = collection.Find(filtroTipo).ToList();
 
-        return Ok(list);
-        
+        return Ok(resultado);
     }
 }

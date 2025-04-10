@@ -2,22 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
 [ApiController]
-[Route("api/gt")]
+[Route("api/Gt")]
 public class GtController : Controller {
-    [HttpGet("casas-venta-metros-terreno")]
-    public IActionResult CosasEnVentaConMasDexTerreno(int metrosConstruccion){
+    [HttpGet("mayor-a-200")]
+    public IActionResult PropiedadesConConstruccionMayorA200() {
         MongoClient client = new MongoClient(CadenasConexion.MONGO_DB);
-        var db = client .GetDatabase("Inmuebles");
+        var db = client.GetDatabase("Inmuebles");
         var collection = db.GetCollection<Inmueble>("RentasVentas");
-        //Obtener todas las casas en venta con mas  de 500 metros de construccion
-        var filtroCasas = Builders<Inmueble>.Filter.Eq(x => x.Tipo, "Casa");
-        var filtroVenta = Builders<Inmueble>.Filter.Eq(x => x.Operacion, "Venta");
-        var filtoMetros = Builders<Inmueble>.Filter.Gt(x => x.MetrosConstruccion, metrosConstruccion);
 
-        var filtroCompuesto = Builders<Inmueble>.Filter.And(filtroCasas, filtroVenta, filtoMetros);
-        var list = collection.Find(filtroCompuesto).ToList();
+        // Filtro: MetrosConstruccion > 200
+        var filtroConstruccion = Builders<Inmueble>.Filter.Gt(x => x.MetrosConstruccion, 200);
 
-        return Ok(list);
+        var resultado = collection.Find(filtroConstruccion).ToList();
 
+        return Ok(resultado);
     }
 }

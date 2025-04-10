@@ -4,20 +4,16 @@ using MongoDB.Driver;
 [ApiController]
 [Route("api/Ne")]
 public class NeController : Controller {
-    [HttpGet("excluir-casa-venta")]
-    public IActionResult PropiedadesFiltradas() {
+    [HttpGet("no-perez")]
+    public IActionResult PropiedadesDeOtrasAgencias() {
         MongoClient client = new MongoClient(CadenasConexion.MONGO_DB);
         var db = client.GetDatabase("Inmuebles");
         var collection = db.GetCollection<Inmueble>("RentasVentas");
 
-        // Filtros:
-        var filtroTipo = Builders<Inmueble>.Filter.Ne(x => x.Tipo, "Casa");
-        var filtroOperacion = Builders<Inmueble>.Filter.Ne(x => x.Operacion, "Venta");
-        var filtroPisos = Builders<Inmueble>.Filter.Gt(x => x.Pisos, 1);
+        // Filtro: Agencia != "Inmobiliaria Pérez"
+        var filtroAgencia = Builders<Inmueble>.Filter.Ne(x => x.Agencia, "Inmobiliaria Pérez");
 
-        var filtroCompuesto = Builders<Inmueble>.Filter.And(filtroTipo, filtroOperacion, filtroPisos);
-
-        var resultado = collection.Find(filtroCompuesto).ToList();
+        var resultado = collection.Find(filtroAgencia).ToList();
 
         return Ok(resultado);
     }
